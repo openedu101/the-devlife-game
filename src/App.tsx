@@ -4,9 +4,9 @@ import { Unity, useUnityContext } from "react-unity-webgl";
 function App() {
   const { unityProvider, loadingProgression, isLoaded } = useUnityContext({
     loaderUrl: "build/Build/BuildLiveDev.loader.js",
-    dataUrl: "build/Build/BuildLiveDev.data.br",
-    frameworkUrl: "build/Build/BuildLiveDev.framework.js.br",
-    codeUrl: "build/Build/BuildLiveDev.wasm.br",
+    dataUrl: "build/Build/BuildLiveDev.data",
+    frameworkUrl: "build/Build/BuildLiveDev.framework.js",
+    codeUrl: "build/Build/BuildLiveDev.wasm",
   });
 
   // We'll use a state to store the device pixel ratio.
