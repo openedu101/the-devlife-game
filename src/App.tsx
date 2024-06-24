@@ -14,8 +14,6 @@ function App() {
     window.devicePixelRatio
   );
 
-  console.log("devicePixelRatio", devicePixelRatio);
-
   useEffect(
     function () {
       // A function which will update the device pixel ratio of the Unity
@@ -42,7 +40,7 @@ function App() {
   return (
     <>
       {/* max-w-6xl */}
-      <div className="w-full mx-auto p-4 h-screen">
+      <div className="w-full mx-auto p-4 min-h-screen">
         <div className="flex justify-between items-center orange-bg p-2">
           <div className="text-white">Dora THE GAME</div>
           <div className="flex items-center">
@@ -67,26 +65,26 @@ function App() {
           </div>
         </div>
 
-        <div className="flex mt-4">
-          <div className="w-1/2 p-2 dark-bg">
+        <div className="sm:flex-col flex mt-4">
+          <div className="sm:w-full w-1/2 p-2 dark-bg">
             <div className="flex justify-center items-center p-4 border-orange">
               {!isLoaded && (
-                <p className="">
+                <p>
                   Loading Application... {Math.round(loadingProgression * 100)}%
                 </p>
               )}
               <Unity
                 unityProvider={unityProvider}
                 style={{
-                  visibility: isLoaded ? "visible" : "hidden",
-                  width: "900px",
-                  height: "600px",
+                  // visibility: isLoaded ? "visible" : "hidden",
+                  display: isLoaded ? "block" : "none",
+                  // width: "900px",
+                  // height: "600px",
+                  width: "300px",
+                  height: "400px"
                 }}
                 devicePixelRatio={devicePixelRatio}
               />
-              {/* <button className="bg-green-500 text-white font-bold py-2 px-4 rounded">
-                  BUILD
-                </button> */}
             </div>
             <div className="mt-4 light-bg p-2">
               <div className="text-white">UPGRADES</div>
@@ -109,7 +107,7 @@ function App() {
             </div>
           </div>
 
-          <div className="w-1/4 p-2 dark-bg">
+          <div className="sm:mb-5 sm:mt-5 sm:w-full w-1/4 p-2 dark-bg">
             <div className="flex justify-between items-center text-white mb-2">
               <div>PROJECT</div>
               <div>39/149</div>
@@ -132,7 +130,7 @@ function App() {
             </div>
           </div>
 
-          <div className="w-1/4 p-2 dark-bg">
+          <div className="sm:w-full w-1/4 p-2 dark-bg">
             <div className="text-white mb-2">HACKER</div>
             <div className="light-bg p-2">
               <div className="text-white">Cryptography guru</div>
