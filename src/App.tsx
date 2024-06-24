@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Unity, useUnityContext } from "react-unity-webgl";
+import ConnectLocks from "./layout/ConnectLocks";
 
 function App() {
   const { unityProvider, loadingProgression, isLoaded } = useUnityContext({
@@ -88,25 +89,8 @@ function App() {
                   BUILD
                 </button> */}
             </div>
-            <div className="mt-4 light-bg p-2">
-              <div className="text-white">UPGRADES</div>
-              <div className="flex flex-wrap">
-                <div className="w-1/2 p-1 border-dark">
-                  <div className="text-white">Beer!</div>
-                  <div className="flex items-center justify-between">
-                    <div className="text-red-500">-100</div>
-                    <div className="text-green-500">+160</div>
-                  </div>
-                </div>
-                <div className="w-1/2 p-1 border-dark">
-                  <div className="text-white">Pizza!</div>
-                  <div className="flex items-center justify-between">
-                    <div className="text-red-500">-10</div>
-                    <div className="text-green-500">+60</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* CONNECT */}
+            <ConnectLocks />
           </div>
 
           <div className="w-1/4 p-2 dark-bg">
