@@ -1,8 +1,10 @@
+import React, { useEffect, useState } from 'react'
 import React, { Profiler, useEffect, useState } from "react";
 import ProifileModal from "../components/ProifileModal";
 
 interface Props {}
-// Define the type for the avatar
+
+// Define the type for the Profile
 interface Profile {
   id: number;
   name: string;
@@ -99,6 +101,7 @@ const ConnectLocks: React.FC<Props> = ({}: Props): JSX.Element => {
   const [avatars, setAvatars] = useState<Profile[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
+
   useEffect(() => {
     // Fetch avatars from the database
     const fetchData = async () => {
@@ -118,6 +121,7 @@ const ConnectLocks: React.FC<Props> = ({}: Props): JSX.Element => {
     setSelectedUser(user);
     setIsModalOpen(!isModalOpen);
   };
+
   return (
     <div className="mt-2 p-2 light-bg h-60">
       {/* Left side */}
@@ -187,5 +191,4 @@ const ConnectLocks: React.FC<Props> = ({}: Props): JSX.Element => {
     </div>
   );
 };
-
-export default ConnectLocks;
+export default ConnectLocks
