@@ -1,41 +1,92 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Unity, useUnityContext } from "react-unity-webgl";
+import { socket } from "./socket";
+import { useDevicePixelRatio } from "./hooks/useDevicePixelRatio";
+import { useScreen } from "./hooks/useScreen";
+import { updateDataDev } from "./api";
+import { SocketServerEvents } from "./enums";
+import ConnectLocks from "./layout/ConnectLocks";
 
 function App() {
-  const { unityProvider, loadingProgression, isLoaded } = useUnityContext({
+  const {
+    unityProvider,
+    loadingProgression,
+    isLoaded,
+    sendMessage,
+    addEventListener,
+    removeEventListener,
+  } = useUnityContext({
     loaderUrl: "build/Build/BuildLiveDev.loader.js",
     dataUrl: "build/Build/BuildLiveDev.data",
     frameworkUrl: "build/Build/BuildLiveDev.framework.js",
     codeUrl: "build/Build/BuildLiveDev.wasm",
   });
 
-  // We'll use a state to store the device pixel ratio.
-  const [devicePixelRatio, setDevicePixelRatio] = useState(
-    window.devicePixelRatio
-  );
+  const devicePixelRatio = useDevicePixelRatio();
+  const { screenSize, isLargeScreen } = useScreen();
 
-  useEffect(
-    function () {
-      // A function which will update the device pixel ratio of the Unity
-      // Application to match the device pixel ratio of the browser.
-      const updateDevicePixelRatio = function () {
-        setDevicePixelRatio(window.devicePixelRatio);
-      };
-      // A media matcher which watches for changes in the device pixel ratio.
-      const mediaMatcher = window.matchMedia(
-        `screen and (resolution: ${devicePixelRatio}dppx)`
-      );
-      // Adding an event listener to the media matcher which will update the
-      // device pixel ratio of the Unity Application when the device pixel
-      // ratio changes.
-      mediaMatcher.addEventListener("change", updateDevicePixelRatio);
-      return function () {
-        // Removing the event listener when the component unmounts.
-        mediaMatcher.removeEventListener("change", updateDevicePixelRatio);
-      };
-    },
-    [devicePixelRatio]
-  );
+  useEffect(() => {
+    // @ts-expect-error - TS doesn't know about the "UpdateDataDev" event
+    addEventListener("UpdateDataDev", updateDataDev);
+    return () => {
+      // @ts-expect-error - TS doesn't know about the "UpdateDataDev" event
+      removeEventListener("UpdateDataDev", updateDataDev);
+    };
+  }, [addEventListener, removeEventListener]);
+
+  useEffect(() => {
+    function onUpdateTeam(data: string) {
+      // console.log("onUpdateTeam");
+      // console.log(data);
+      sendMessage("PlayerControll", "receiveJsonTeam", JSON.stringify(data));
+    }
+
+    socket.on(SocketServerEvents.UpdateTeam, onUpdateTeam);
+
+    return () => {
+      socket.off(SocketServerEvents.UpdateTeam, onUpdateTeam);
+    };
+  }, [sendMessage]);
+
+  useEffect(() => {
+    const data = {
+      team: {
+        name: "Weminal",
+        quantity: 4,
+        total_token: 100,
+        total_commit: 100,
+        total_bug: 100,
+      },
+      users: [
+        {
+          id: 1,
+          name: "Hien",
+          stamina: 100,
+          is_online: true,
+        },
+        {
+          id: 2,
+          name: "Phuc",
+          stamina: 100,
+          is_online: true,
+        },
+        {
+          id: 3,
+          name: "Phap",
+          stamina: 100,
+          is_online: true,
+        },
+        {
+          id: 4,
+          name: "Tung",
+          stamina: 100,
+          is_online: true,
+        },
+      ],
+      id_user_playing: 1,
+    };
+    sendMessage("PlayerControll", "receiveJsonTeam", JSON.stringify(data));
+  }, [isLoaded, sendMessage]);
 
   return (
     <>
@@ -67,7 +118,7 @@ function App() {
 
         <div className="sm:flex-col flex mt-4">
           <div className="sm:w-full w-1/2 p-2 dark-bg">
-            <div className="flex justify-center items-center p-4 border-orange">
+            <div className="flex justify-center items-center border-orange">
               {!isLoaded && (
                 <p>
                   Loading Application... {Math.round(loadingProgression * 100)}%
@@ -78,95 +129,110 @@ function App() {
                 style={{
                   // visibility: isLoaded ? "visible" : "hidden",
                   display: isLoaded ? "block" : "none",
-                  // width: "900px",
-                  // height: "600px",
-                  width: "300px",
-                  height: "400px"
+                  width: `${
+                    !isLargeScreen
+                      ? screenSize.width / screenSize.height > 1 // rotate phone
+                        ? screenSize.width
+                        : screenSize.width - 50
+                      : screenSize.width / 2.13
+                  }px`,
+                  height: `${
+                    !isLargeScreen
+                      ? screenSize.width / screenSize.height > 1 // rotate phone
+                        ? screenSize.height - 70
+                        : screenSize.height - 100
+                      : screenSize.height / 1.6
+                  }px`,
                 }}
                 devicePixelRatio={devicePixelRatio}
               />
             </div>
-            <div className="mt-4 light-bg p-2">
-              <div className="text-white">UPGRADES</div>
-              <div className="flex flex-wrap">
-                <div className="w-1/2 p-1 border-dark">
-                  <div className="text-white">Beer!</div>
-                  <div className="flex items-center justify-between">
-                    <div className="text-red-500">-100</div>
-                    <div className="text-green-500">+160</div>
-                  </div>
-                </div>
-                <div className="w-1/2 p-1 border-dark">
-                  <div className="text-white">Pizza!</div>
-                  <div className="flex items-center justify-between">
-                    <div className="text-red-500">-10</div>
-                    <div className="text-green-500">+60</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* CONNECT */}
+            <ConnectLocks />
           </div>
 
           <div className="sm:mb-5 sm:mt-5 sm:w-full w-1/4 p-2 dark-bg">
             <div className="flex justify-between items-center text-white mb-2">
-              <div>PROJECT</div>
-              <div>39/149</div>
+              <div>KNOWLEDGE</div>
+              <div>1/NA</div>
             </div>
             <div className="light-bg p-2">
-              <div className="text-white">8/21 BTC</div>
-              <div className="text-white">
-                Bitcoin-QT v0.6, adding QR codes for addresses, an
-                implementation of BIP30 and fixes for memory related
-                denial-of-service attacks.
-              </div>
-              <div className="flex items-center justify-between text-white">
+              {/* <div className="text-white">8/21 BTC</div> */}
+              <div className="text-white cursor-pointer">Prerequisites</div>
+              {/* <div className="flex items-center justify-between text-white">
                 <div>
                   <i className="fas fa-clock"></i> +32/s
                 </div>
                 <div>
                   <i className="fas fa-coins"></i> +8.37K
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
 
-          <div className="sm:w-full w-1/4 p-2 dark-bg">
-            <div className="text-white mb-2">HACKER</div>
-            <div className="light-bg p-2">
-              <div className="text-white">Cryptography guru</div>
-              <div className="flex items-center justify-between text-white">
+          <div className="sm:w-full w-1/4 dark-bg">
+            <div className="text-white p-2">SUB-KNOWLEDGE</div>
+            <div className=" p-2 dark-bg">
+              <div className="light-bg p-2">
                 <div>
-                  <i className="fas fa-tachometer-alt"></i> +60/s
+                  <div className="cursor-pointer">
+                    <div>Introduction</div>
+                    <div className="text-white">
+                      This game was designed to help you fun with the hackathon
+                      concepts and learn more what blockchain is?
+                    </div>
+                  </div>
+                  {/* <div className="flex items-center justify-between text-white">
+                  <div>
+                    <i className="fas fa-tachometer-alt"></i> +60/s
+                  </div>
+                  <div>
+                    <i className="fas fa-minus-circle text-red-500"></i> -12K
+                  </div>
+                </div> */}
                 </div>
-                <div>
-                  <i className="fas fa-minus-circle text-red-500"></i> -12K
+                {/* <div>
+                <div className="text-white">Income VP</div>
+                <div className="flex items-center justify-between text-white">
+                  <div>
+                    <i className="fas fa-dollar-sign"></i> +10%/s
+                  </div>
+                  <div>
+                    <i className="fas fa-minus-circle text-red-500"></i> -30K
+                  </div>
                 </div>
               </div>
-              <div className="text-white">Income VP</div>
-              <div className="flex items-center justify-between text-white">
-                <div>
-                  <i className="fas fa-dollar-sign"></i> +10%/s
-                </div>
-                <div>
-                  <i className="fas fa-minus-circle text-red-500"></i> -30K
-                </div>
-              </div>
-              <div className="text-white">Growth Hacker</div>
-              <div className="flex items-center justify-between text-white">
-                <div>
-                  <i className="fas fa-hand-pointer"></i> +200/Click
-                </div>
-                <div>
-                  <i className="fas fa-plus-circle text-green-500"></i> +600/s
+              <div>
+                <div className="text-white">Growth Hacker</div>
+                <div className="flex items-center justify-between text-white">
+                  <div>
+                    <i className="fas fa-hand-pointer"></i> +200/Click
+                  </div>
+                  <div>
+                    <i className="fas fa-plus-circle text-green-500"></i> +600/s
+                  </div>
                 </div>
               </div>
-              <div className="text-white">ZK Engineer</div>
-              <div className="flex items-center justify-between text-white">
-                <div>
-                  <i className="fas fa-cogs"></i> +800/s
+              <div>
+                <div className="text-white">ZK Engineer</div>
+                <div className="flex items-center justify-between text-white">
+                  <div>
+                    <i className="fas fa-cogs"></i> +800/s
+                  </div>
+                  <div>
+                    <i className="fas fa-minus-circle text-red-500"></i> -100K
+                  </div>
                 </div>
-                <div>
-                  <i className="fas fa-minus-circle text-red-500"></i> -100K
+              </div> */}
+              </div>
+            </div>
+            <div className="p-2 dark-bg">
+              <div className="light-bg p-2">
+                <div className="cursor-pointer">
+                  <div>How the game help you understand blockchain?</div>
+                  <div className="text-white">
+                    We focus on providing insights into the Avax network.
+                  </div>
                 </div>
               </div>
             </div>

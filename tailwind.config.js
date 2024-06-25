@@ -4,7 +4,7 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",],
   theme: {
     screens: {
-      'sm': { 'max': '639px' },
+      'sm': { 'min': '375px', 'max': '767px' },
     },
     extend: {},
   },
