@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Unity, useUnityContext } from "react-unity-webgl";
 import { socket } from "./socket";
 import { useDevicePixelRatio } from "./hooks/useDevicePixelRatio";
@@ -6,8 +6,26 @@ import { useScreen } from "./hooks/useScreen";
 import { updateDataDev } from "./api";
 import { SocketServerEvents } from "./enums";
 import ConnectLocks from "./layout/ConnectLocks";
+import Header from "./components/Header";
+import { walletCopy, walletCopyPL } from "./data/WalletData";
 
 function App() {
+
+  const [showConfigurator, setShowConfigurator] = useState(false);
+  const [showDisclosure, setShowDisclosure] = useState(false);
+  const [language, setLanguage] = useState('english');
+
+
+  const handleReturnToStartPage = () => {
+    setShowConfigurator(false);
+    setShowDisclosure(false);
+  };
+
+
+  const handleLanguageChange = () => {
+    setLanguage(language === 'english' ? 'vietnamese' : 'english');
+  };
+
   const {
     unityProvider,
     loadingProgression,
@@ -88,33 +106,41 @@ function App() {
     sendMessage("PlayerControll", "receiveJsonTeam", JSON.stringify(data));
   }, [isLoaded, sendMessage]);
 
+  // <div className="flex justify-between items-center orange-bg p-2">
+  //         <div className="text-white">Dora THE GAME</div>
+  //         <div className="flex items-center">
+  //           <div className="mx-2">
+  //             <i className="fas fa-cog text-white"></i>
+  //           </div>
+  //           <div className="mx-2">
+  //             <i className="fas fa-save text-white"></i>
+  //           </div>
+  //           <div className="mx-2">
+  //             <i className="fas fa-trophy text-white"></i>
+  //           </div>
+  //           <div className="mx-2">
+  //             <i className="fas fa-user-secret text-white"></i>
+  //           </div>
+  //           <div className="mx-2">
+  //             <i className="fas fa-chart-line text-white"></i>
+  //           </div>
+  //           <div className="mx-2">
+  //             <i className="fas fa-book text-white"></i>
+  //           </div>
+  //           {/* Connect Wallet */}
+            
+  //         </div>
+  //       </div>
+
   return (
     <>
       {/* max-w-6xl */}
       <div className="w-full mx-auto p-4 min-h-screen">
-        <div className="flex justify-between items-center orange-bg p-2">
-          <div className="text-white">Dora THE GAME</div>
-          <div className="flex items-center">
-            <div className="mx-2">
-              <i className="fas fa-cog text-white"></i>
-            </div>
-            <div className="mx-2">
-              <i className="fas fa-save text-white"></i>
-            </div>
-            <div className="mx-2">
-              <i className="fas fa-trophy text-white"></i>
-            </div>
-            <div className="mx-2">
-              <i className="fas fa-user-secret text-white"></i>
-            </div>
-            <div className="mx-2">
-              <i className="fas fa-chart-line text-white"></i>
-            </div>
-            <div className="mx-2">
-              <i className="fas fa-book text-white"></i>
-            </div>
-          </div>
-        </div>
+        <Header
+          onLeftButtonClick={handleReturnToStartPage}
+          onLanguageChange={handleLanguageChange}
+          data={language === 'english' ? walletCopy : walletCopyPL}
+          language={language} />
 
         <div className="sm:flex-col flex mt-4">
           <div className="sm:w-full w-1/2 p-2 dark-bg">

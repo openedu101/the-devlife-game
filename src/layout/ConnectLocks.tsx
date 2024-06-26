@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import React, { Profiler, useEffect, useState } from "react";
 import ProifileModal from "../components/ProifileModal";
 
 interface Props {}
@@ -97,6 +96,7 @@ const fetchTeamAvatars = async (): Promise<Profile[]> => {
   ];
 };
 
+// eslint-disable-next-line no-empty-pattern
 const ConnectLocks: React.FC<Props> = ({}: Props): JSX.Element => {
   const [avatars, setAvatars] = useState<Profile[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
