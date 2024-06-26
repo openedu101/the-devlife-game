@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ProfileModal from "../components/ProfileModal";
 
-// Define the type for the avatar
 interface Profile {
   id: number;
   name: string;
@@ -113,6 +112,7 @@ const ConnectLocks: React.FC<Props> = (): JSX.Element => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   // data đưa vào Modal 
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
+  
   // Giả sử đoạn mã này được thêm vào trong component `ConnectLocks`
   const [currentUser, setCurrentUser] = useState<Profile | null>(null);
   const [teamAvatars, setTeamAvatars] = useState<Profile[]>([]);
@@ -264,5 +264,4 @@ const ConnectLocks: React.FC<Props> = (): JSX.Element => {
     </div>
   );
 };
-
-export default ConnectLocks;
+export default ConnectLocks
