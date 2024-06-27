@@ -1,16 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { connectWallet, getCurrentWalletConnected } from "../api/WalletAPI";
+import React, { useEffect } from "react";
 import styled from 'styled-components';
-
 
 const HeaderContainer = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: sticky;
   top: 0;
   left: 0;
-  width: 99.99%;
+  width: 100%;
   z-index: 999;
   padding: 0.8rem;
   background-color: rgba(233,205,208, 0.5);
@@ -18,10 +15,11 @@ const HeaderContainer = styled.header`
   transition: transform 0.3s ease;
 
   @media only screen and (max-width: 768px) {
-    padding: 0.2rem;
+    padding: 0.5rem;
+    flex-direction: column;
+    align-items: flex-start;
   }
 `;
-
 
 const ButtonStyle = styled.button`
   font-family: 'Open Sans', sans-serif;
@@ -33,7 +31,6 @@ const ButtonStyle = styled.button`
   border: 0.1875rem solid;
   padding: 0rem 0rem;
   box-shadow: 0.0625rem 0.0625rem 0 0, 0.125rem 0.125rem 0 0, 0.1875rem 0.1875rem 0 0, 0.25rem 0.25rem 0 0, 0.3125rem 0.3125rem 0 0; 
-  bottom: 0rem;
   transition: background-color 0.3s, color 0.3s;
   background-color: transparent;
 
@@ -49,7 +46,6 @@ const ButtonStyle = styled.button`
   }
 `;
 
-
 const LeftButton = styled.button`
   display: flex;
   align-items: center;
@@ -57,7 +53,6 @@ const LeftButton = styled.button`
   border: none;
   cursor: pointer;
 `;
-
 
 const RightButton = styled.button`
   font-family: 'PixelFont';
@@ -70,41 +65,47 @@ const RightButton = styled.button`
   align-items: flex-end;
 
   @media only screen and (max-width: 768px) {
-    display: none;
+    display: flex;
+    align-items: flex-start;
   }
 `;
 
 const RightSideContainer = styled.div`
   display: flex;
-  flex-direction: Row;
+  flex-direction: row;
   align-items: flex-end;
   margin-right: 1rem;
 
   @media only screen and (max-width: 768px) {
-    margin-right: 0rem;
+    margin-right: 0;
+    width: 100%;
+    justify-content: space-between;
+    flex-direction: column;
   }
 `;
-
 
 const LeftSideContainer = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flext-start;
+  align-items: flex-start;
   margin-left: 0.5rem;
 
   @media only screen and (max-width: 1024px) {
     margin-left: 0.8rem;
     margin-bottom: 0.5rem;
   }
-  `
-
+`;
 
 const MiddleContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-`
 
+  @media only screen and (max-width: 768px) {
+    align-items: flex-start;
+    width: 100%;
+  }
+`;
 
 const Text = styled.h1`
   font-family: 'Courier New';
@@ -114,7 +115,7 @@ const Text = styled.h1`
   @media only screen and (max-width: 768px) {
     font-size: 1.2rem;
   }
-`
+`;
 
 const Icon = styled.img`
   width: 2rem;
@@ -134,10 +135,15 @@ const Icon = styled.img`
 const ButtonContainer = styled.div`
   display: flex;
   align-items: center;
+
+  @media only screen and (max-width: 768px) {
+    width: 100%;
+    flex-direction: row;
+  }
 `;
 
 const IconButton = styled.div`
-  margin: 0 0.5rem; /* 0.5rem là 0.2rem chuyển đổi từ 0.2rem của media query */
+  margin: 0 0.5rem;
   color: white;
   cursor: pointer;
   padding: 0.8rem;
@@ -151,15 +157,13 @@ const IconButton = styled.div`
   }
 
   @media only screen and (max-width: 768px) {
-    margin: 0 0.2rem;
+    margin: 0.2rem 0;
     padding: 0.2rem;
   }
 `;
 
-
 const useHeaderAnimation = () => {
   const [isHeaderVisible, setIsHeaderVisible] = React.useState(true);
-
 
   useEffect(() => {
     const handleScroll = () => {
@@ -177,7 +181,6 @@ const useHeaderAnimation = () => {
   return isHeaderVisible;
 };
 
-
 interface HeaderProps {
   onLeftButtonClick?: () => void;
   onRightButtonClick?: () => void;
@@ -189,100 +192,109 @@ interface HeaderProps {
     walletNotConnectedMessage: string;
     walletDisconnectedMessage: string;
     walletReconnectedMessage: string;
-  }
+  };
   language: string;
+  publicAddress: string;
 }
 
-
-const Header: React.FC<HeaderProps> = ({ onLeftButtonClick, data, language }) => {
+export const Header: React.FC<HeaderProps> = ({
+  onLeftButtonClick,
+  data,
+  language,
+  publicAddress,
+}) => {
   const isHeaderVisible = useHeaderAnimation();
-  const [walletAddress, setWallet] = useState<string>("");
-  const [status, setStatus] = useState<string | JSX.Element>("");
-
-
-  
-
-  useEffect(() => {
-    const fetchCurrentWalletConnected = async () => {
-      const { address, status } = await getCurrentWalletConnected(language);
-      setWallet(address);
-      setStatus(status);
-    };
-  
-    fetchCurrentWalletConnected();
-  }, []);
-  
-  
-    const connectWalletPressed = async () => {
-      const walletResponse = await connectWallet(language);
-      setStatus(walletResponse.status);
-      setWallet(walletResponse.address);
-    };
-
-    const isMobile = window.innerWidth < 768;
-    
-    
+  const isMobile = window.innerWidth < 768;
 
   return (
     <HeaderContainer style={{ transform: isHeaderVisible ? 'translateY(0)' : 'translateY(-100%)' }}>
-
-      <LeftSideContainer>
-      
-      <ButtonStyle>
-          {/* logo */}
-        <LeftButton onClick={onLeftButtonClick}>
-          <Icon src="/assets/UI/console_1.png" alt="DevLife" />
-        </LeftButton>
-      </ButtonStyle>
-      </LeftSideContainer>
-
-      <MiddleContainer>
-      <Text>{language === "english" ? "Devlife game" : "Devlife game"}</Text>
-      </MiddleContainer>
-
-      <RightSideContainer>
-      <ButtonContainer>
-        <IconButton>
-          <i className="fas fa-cog"></i>
-        </IconButton>
-        <IconButton>
-          <i className="fas fa-save"></i>
-        </IconButton>
-        <IconButton>
-          <i className="fas fa-trophy"></i>
-        </IconButton>
-        <IconButton>
-          <i className="fas fa-user-secret"></i>
-        </IconButton>
-        <IconButton>
-          <i className="fas fa-chart-line"></i>
-        </IconButton>
-        <IconButton>
-          <i className="fas fa-book"></i>
-        </IconButton>
-      </ButtonContainer>
-
-        {/* button flag*/}
-        {/*
-              <LangButton onClick={onLanguageChange}>
-      {language === 'english' ? <FlagIcon src="/assets/UI/vn-flag.svg" alt="VN Flag" /> : <FlagIcon src="/assets/UI/uk-flag.svg" alt="UK Flag" />}
-      {language === 'english' ? 'VN' : 'EN'}
-      </LangButton>
-*/}
-      {!isMobile && (
-      <ButtonStyle>
-          <RightButton onClick={connectWalletPressed}>
-        {walletAddress.length > 0 
-        ? `${data.walletConnectedMessage} ${String(walletAddress).substring(0, 6)}...${String(walletAddress).substring(38)}`
-        : data.walletNotConnectedMessage}
-          </RightButton>
-      </ButtonStyle>
-    )}
-      </RightSideContainer>
-
+      {isMobile ? (
+        <>
+        <div className="flex justify-center flex-col gap-3">
+          <div className="flex flex-row gap-10">
+          <LeftSideContainer>
+            <ButtonStyle>
+              <LeftButton onClick={onLeftButtonClick}>
+                <Icon src="/assets/UI/console_1.png" alt="DevLife" />
+              </LeftButton>
+            </ButtonStyle>
+          </LeftSideContainer>
+          <ButtonStyle>
+            <LeftButton>
+              {publicAddress.length > 0
+                ? `${data.walletConnectedMessage} ${String(publicAddress).substring(0, 6)}...${String(publicAddress).substring(38)}`
+                : data.walletNotConnectedMessage}
+            </LeftButton>
+          </ButtonStyle>
+          </div>
+        <div className="flex flex-row">
+        <Text>{language === "english" ? "Devlife game" : "Devlife game"}</Text>
+        </div>
+            
+          <RightSideContainer>
+            <ButtonContainer className="space-x-4">
+              <IconButton>
+                <i className="fas fa-cog"></i>
+              </IconButton>
+              <IconButton>
+                <i className="fas fa-save"></i>
+              </IconButton>
+              <IconButton>
+                <i className="fas fa-trophy"></i>
+              </IconButton>
+              <IconButton>
+                <i className="fas fa-user-secret"></i>
+              </IconButton>
+              <IconButton>
+                <i className="fas fa-chart-line"></i>
+              </IconButton>
+              <IconButton>
+                <i className="fas fa-book"></i>
+              </IconButton>
+            </ButtonContainer>
+          </RightSideContainer>
+        </div>
+        </>
+        ) : (
+          <><LeftSideContainer>
+            <ButtonStyle>
+              <LeftButton onClick={onLeftButtonClick}>
+                <Icon src="/assets/UI/console_1.png" alt="DevLife" />
+              </LeftButton>
+            </ButtonStyle>
+          </LeftSideContainer><MiddleContainer>
+              <Text>{language === "english" ? "Devlife game" : "Devlife game"}</Text>
+            </MiddleContainer><RightSideContainer>
+              <ButtonContainer className="space-x-4">
+                <IconButton>
+                  <i className="fas fa-cog"></i>
+                </IconButton>
+                <IconButton>
+                  <i className="fas fa-save"></i>
+                </IconButton>
+                <IconButton>
+                  <i className="fas fa-trophy"></i>
+                </IconButton>
+                <IconButton>
+                  <i className="fas fa-user-secret"></i>
+                </IconButton>
+                <IconButton>
+                  <i className="fas fa-chart-line"></i>
+                </IconButton>
+                <IconButton>
+                  <i className="fas fa-book"></i>
+                </IconButton>
+              </ButtonContainer>
+            </RightSideContainer><ButtonStyle>
+              <RightButton>
+                {publicAddress.length > 0
+                  ? `${data.walletConnectedMessage} ${String(publicAddress).substring(0, 6)}...${String(publicAddress).substring(38)}`
+                  : data.walletNotConnectedMessage}
+              </RightButton>
+            </ButtonStyle></>
+        )}
     </HeaderContainer>
   );
 };
-
 
 export default Header;

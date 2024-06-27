@@ -9,21 +9,20 @@ export default defineConfig({
   },
   plugins: [react()],
   resolve: {
-    alias: {
-    },
+    alias: {},
   },
   optimizeDeps: {
     esbuildOptions: {
-        // Node.js global to browser globalThis
-        define: {
-            global: 'globalThis'
-        },
-        // Enable esbuild polyfill plugins
-        plugins: [
-            NodeGlobalsPolyfillPlugin({
-                buffer: true
-            })
-        ]
+      // Node.js global to browser globalThis
+      define: {
+        global: 'globalThis'
+      },
+      // Enable esbuild polyfill plugins
+      plugins: [
+        NodeGlobalsPolyfillPlugin({
+          buffer: true
+        })
+      ]
     }
-  }
+  },
 })
