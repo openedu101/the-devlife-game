@@ -4,33 +4,30 @@ import { socket } from "../socket";
 import { useDevicePixelRatio } from "../hooks/useDevicePixelRatio";
 import { useScreen } from "../hooks/useScreen";
 import { updateDataDev } from "../api";
-import { SocketServerEvents } from "../enums";
+import { SocketClientEvents, SocketServerEvents } from "../enums";
 import ConnectLocks from "../layout/ConnectLocks";
 import { walletCopy, walletCopyPL } from "../data/WalletData";
 import Header from "../components/Header";
 import { useLocation } from "react-router-dom";
 
 function Home() {
-
   const location = useLocation();
   const { address } = location.state || {};
   // const address = "đâsdasdasdadasdaasd"
 
   const [, setShowConfigurator] = useState(false);
   const [, setShowDisclosure] = useState(false);
-  const [language, setLanguage] = useState('english');
+  const [language, setLanguage] = useState("english");
   // const [publicAddress, setPublicAddress] = useState('');
   // const [smartAccount, setSmartAccount] = useState(null);
-
 
   const handleReturnToStartPage = () => {
     setShowConfigurator(false);
     setShowDisclosure(false);
   };
 
-
   const handleLanguageChange = () => {
-    setLanguage(language === 'english' ? 'vietnamese' : 'english');
+    setLanguage(language === "english" ? "vietnamese" : "english");
   };
 
   const {
@@ -60,10 +57,33 @@ function Home() {
   }, [addEventListener, removeEventListener]);
 
   useEffect(() => {
-    function onUpdateTeam(data: string) {
-      // console.log("onUpdateTeam");
-      // console.log(data);
-      sendMessage("PlayerControll", "receiveJsonTeam", JSON.stringify(data));
+    // @ts-expect-error - later
+    function onUpdateTeam(data) {
+      console.log("onUpdateTeam", data);
+
+      const obj = {
+        team: {
+          name: data.team.name,
+          quantity: data.team.members.length,
+          total_token: data.team.total_token,
+          total_commit: data.team.total_commit,
+          total_bug: data.team.total_bug,
+        },
+        // @ts-expect-error - later
+        users: data.users.map((user) => {
+          console.log(user);
+          return {
+            id: user._id["$oid"],
+            // name: `${user.firstname} ${user.lastname}`,
+            name: "Test",
+            stamina: user.stamina,
+            is_online: user.is_online,
+          };
+        }),
+        id_user_playing: 1,
+      }; // UpdateTeamResponse (Rust type)
+
+      sendMessage("PlayerControll", "receiveJsonTeam", JSON.stringify(obj));
     }
 
     socket.on(SocketServerEvents.UpdateTeam, onUpdateTeam);
@@ -113,20 +133,30 @@ function Home() {
     sendMessage("PlayerControll", "receiveJsonTeam", JSON.stringify(data));
   }, [isLoaded, sendMessage]);
 
-  
+  function handleUpdateDataDev() {
+    const data = {
+      id_player: "667bd5b1932f4f44d825ac45",
+      commits: 1,
+      bugs: 0,
+      stamina: -30,
+    }; // UpdateDataRequest (Rust type)
+
+    socket.emit(SocketClientEvents.UpdateDataDev, data);
+  }
 
   return (
     <>
+      <button onClick={handleUpdateDataDev}>Update Data Dev</button>
       {/* max-w-6xl */}
       <div className="w-full mx-auto p-4 min-h-screen">
         <Header
           onLeftButtonClick={handleReturnToStartPage}
           onLanguageChange={handleLanguageChange}
-          data={language === 'english' ? walletCopy : walletCopyPL}
+          data={language === "english" ? walletCopy : walletCopyPL}
           language={language}
           publicAddress={address}
         />
-        
+
         <div className="sm:flex-col flex mt-4">
           <div className="sm:w-full w-1/2 p-2 dark-bg">
             <div className="flex justify-center items-center border-orange">

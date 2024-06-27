@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import ProifileModal from "../components/ProifileModal";
+import ProfileModal from '../components/ProfileModal';
 
 interface Profile {
   id: number;
