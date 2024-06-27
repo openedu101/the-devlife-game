@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ChangeGroupNameModal, ChangeNameModal, FindGroupModal, LeaveGroupModal } from "./ActionModal";
+import { ethers } from "ethers";
+import { realbuilderSBTabi } from "../abi/RealBuilderSBT";
 
 interface Profile {
   id: number;
@@ -21,8 +23,41 @@ interface Props {
 }
 
 const ProfileModal: React.FC<Props> = ({ isOpen, onClose, user, currentUser }) => {
+
+  const [nftImages, setNftImages] = useState<string[]>([]);
   const [showActionModal, setShowActionModal] = useState<boolean>(false);
   const [actionType, setActionType] = useState<string>('');
+
+  useEffect(() => {
+    const fetchNFTs = async () => {
+      try {
+        const rpcUrl = "https://subnets.avacloud.io/d495721e-9157-49c8-90cd-ae9a39d4a68f";
+        const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
+        console.log(provider);
+
+        // Địa chỉ của contract ERC-721
+        const erc721ContractAddress = "0xaf2159ef7b5C571AE371B0F2b727CB7cA864dC3c";
+
+        // Tạo đối tượng Contract với ERC-721 contract address và ABI
+        const contract = new ethers.Contract(erc721ContractAddress, realbuilderSBTabi, provider);
+
+        // Gọi hàm getSoulboundNFTs để lấy danh sách các token ID mà địa chỉ ví sở hữu
+        const check = await contract.getSoulboundNFTs("0x5eeb8342391e9c2Dd2a5C14Bc71d28C04Faadd53");
+        if (check != null) {
+          const imageUrl = "https://green-necessary-dormouse-499.mypinata.cloud/ipfs/QmWwybBHitTfTDgQMFcK4AYAES1NgXD6moYoa6rMpLXY71?fbclid=IwZXh0bgNhZW0CMTAAAR0w-LUSApyNJ2T6KzXYUJKIYumxglnovLGzXOieHYqUxNsBzsam1X-eNuE_aem_iK-4PlWcNlrhh-03iTfTMg";
+          setNftImages([imageUrl]);
+        }
+
+      } catch (error) {
+        console.error("Error fetching NFTs:", error);
+      }
+    };
+
+    if (user) {
+      fetchNFTs();
+    }
+
+  }, [user]);
 
   if (!isOpen || !user) return null;
 
@@ -103,29 +138,46 @@ const ProfileModal: React.FC<Props> = ({ isOpen, onClose, user, currentUser }) =
             Close
           </button>
         </div>
-        <div className="h-full text-sky-200 ">
-          {/* Nội dung modal */}
-          <p>Wallet Address: {user.wallet_address}</p>
-          {isCurrentUser && user.ref_list && (
-            <>
-              <h3>Referral List:</h3>
-              <ul className="text-sky-200">
-                {user.ref_list.map((ref, index) => (
-                  <li className="text-sky-200" key={index}>{ref}</li>
-                ))}
-              </ul>
-            </>
-          )}
-          {user.groupMembers && (
-            <>
-              <h3>Group Members:</h3>
-              <ul>
-                {user.groupMembers.map((member) => (
-                  <li key={member.id}>{member.name}#{member.id} - {member.role} </li>
-                ))}
-              </ul>
-            </>
-          )}
+          <div className="h-full text-sky-200 ">
+            <div className="flex flex-row gap-10">
+            <div>
+              {/* Nội dung modal */}
+              <p>Wallet Address: {user.wallet_address}</p>
+              {isCurrentUser && user.ref_list && (
+                <>
+                  <h3>Referral List:</h3>
+                  <ul className="text-sky-200">
+                    {user.ref_list.map((ref, index) => (
+                      <li className="text-sky-200" key={index}>{ref}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              {user.groupMembers && (
+                <>
+                  <h3>Group Members:</h3>
+                  <ul>
+                    {user.groupMembers.map((member) => (
+                      <li key={member.id}>{member.name}#{member.id} - {member.role} </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
+              
+
+            <div className="mt-4 flex flex-wrap justify-center">
+              {nftImages.map((imageUrl, index) => (
+                <img
+                  key={index}
+                  src={imageUrl}
+                  alt={`NFT ${index + 1}`}
+                  className="w-40 h-40 m-2 rounded-lg object-cover"
+                />
+              ))}
+            </div>
+          </div>
+
           {isCurrentUser && (
             <div className="flex gap-2 m-2">
               <button onClick={() => handleAction('changeName')}>Change Name</button>
@@ -135,7 +187,18 @@ const ProfileModal: React.FC<Props> = ({ isOpen, onClose, user, currentUser }) =
             </div>
           )}
 
+          {/* <div className="mt-4 flex flex-wrap justify-center">
+            {nftImages.map((imageUrl, index) => (
+              <img
+                key={index}
+                src={imageUrl}
+                alt={`NFT ${index + 1}`}
+                className="w-20 h-20 m-2 rounded-lg object-cover"
+              />
+            ))}
+          </div> */}
         </div>
+        
 
       {showActionModal && (
         <div className="absolute inset-0 bg-white p-4 rounded-lg shadow-lg m-4 flex flex-col justify-center items-center dark:bg-gray-700 stroke-lime-50 border border-solid border-sky-50">
