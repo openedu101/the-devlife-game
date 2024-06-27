@@ -112,7 +112,7 @@ const ConnectLocks: React.FC<Props> = (): JSX.Element => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   // data đưa vào Modal 
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
-  
+
   // Giả sử đoạn mã này được thêm vào trong component `ConnectLocks`
   const [currentUser, setCurrentUser] = useState<Profile | null>(null);
   const [teamAvatars, setTeamAvatars] = useState<Profile[]>([]);
@@ -182,84 +182,166 @@ const ConnectLocks: React.FC<Props> = (): JSX.Element => {
     // data khi them mot nguoi choi moi vao team
     setTeamAvatars([...teamAvatars, newUser]);
   };
-  return (
-    <div className="mt-2 p-2 light-bg h-60">
-      {/* Left side */}
-      <div className="flex mb-2 h-full">
-        <div className="w-1/4 p-2 overflow-hidden">
-          <h2 className="text-xl font-bold mb-4 overflow-hidden">Team Name</h2>
-          <div className="grid grid-cols-2 gap-2 ">
-            {/* Ô đầu tiên là chính mình */}
+  const isMobile: boolean = window.innerWidth < 768;
 
-            {teamAvatars.map((avatar) => (
-              <div
-                key={avatar.id}
-                className="relative cursor-pointer"
-                onClick={() => openModal(avatar)}
-              >
-                <img
-                  src={`${avatar.avatarUrl}${avatar.name}`}
-                  alt={avatar.name}
-                  className="w-full h-auto rounded-full mb-1 transition-transform duration-300 hover:scale-110 object-cover"
+  return (
+    <div className="mt-2 p-2 light-bg ">
+      {/* Left side */}
+      <div className={`${isMobile ? "flex-col mb-2 h-full": "flex mb-2 h-full"}`}>
+        {isMobile ? (
+          <div className="w-full p-2 overflow-hidden">
+            <h2 className="text-xl font-bold mb-4 overflow-hidden">Team Name</h2>
+            <div className="grid grid-cols-4 gap-2 ">
+              {/* Ô đầu tiên là chính mình */}
+
+              {teamAvatars.map((avatar) => (
+                <div
+                  key={avatar.id}
+                  className="relative cursor-pointer"
+                  onClick={() => openModal(avatar)}
+                >
+                  <img
+                    src={`${avatar.avatarUrl}${avatar.name}`}
+                    alt={avatar.name}
+                    className="w-full h-auto rounded-full mb-1 transition-transform duration-300 hover:scale-110 object-cover"
+                    style={{ maxHeight: "100px", maxWidth: "100%" }} // Điều chỉnh kích thước tối đa cho ảnh
+                  />
+                </div>
+              ))}
+              {/* Nếu team chưa đầy, hiển thị nút '+' để thêm user */}
+              {teamAvatars.length <= 3 && (
+                <div
+                  className="flex justify-center items-center w-8 h-auto rounded-full bg-dark p-1 transition-transform duration-300 hover:scale-110 border border-solid border-sky-50"
+                  onClick={handleAddToGroup}
                   style={{ maxHeight: "100px", maxWidth: "100%" }} // Điều chỉnh kích thước tối đa cho ảnh
-                />
-              </div>
-            ))}
-            {/* Nếu team chưa đầy, hiển thị nút '+' để thêm user */}
-            {teamAvatars.length <= 3 && (
-              <div
-                className="flex justify-center items-center w-8 h-auto rounded-full bg-dark p-1 transition-transform duration-300 hover:scale-110 border border-solid border-sky-50"
-                onClick={handleAddToGroup}
-                style={{ maxHeight: "100px", maxWidth: "100%" }} // Điều chỉnh kích thước tối đa cho ảnh
-              >
-                +
-              </div>
-            )}
+                >
+                  +
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="w-1/4 p-2 overflow-hidden">
+            <h2 className="text-xl font-bold mb-4 overflow-hidden">Team Name</h2>
+            <div className="grid grid-cols-2 gap-2 ">
+              {/* Ô đầu tiên là chính mình */}
+
+              {teamAvatars.map((avatar) => (
+                <div
+                  key={avatar.id}
+                  className="relative cursor-pointer"
+                  onClick={() => openModal(avatar)}
+                >
+                  <img
+                    src={`${avatar.avatarUrl}${avatar.name}`}
+                    alt={avatar.name}
+                    className="w-full h-auto rounded-full mb-1 transition-transform duration-300 hover:scale-110 object-cover"
+                    style={{ maxHeight: "100px", maxWidth: "100%" }} // Điều chỉnh kích thước tối đa cho ảnh
+                  />
+                </div>
+              ))}
+              {/* Nếu team chưa đầy, hiển thị nút '+' để thêm user */}
+              {teamAvatars.length <= 3 && (
+                <div
+                  className="flex justify-center items-center w-8 h-auto rounded-full bg-dark p-1 transition-transform duration-300 hover:scale-110 border border-solid border-sky-50"
+                  onClick={handleAddToGroup}
+                  style={{ maxHeight: "100px", maxWidth: "100%" }} // Điều chỉnh kích thước tối đa cho ảnh
+                >
+                  +
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         {/*<div className="self-center mx-2 border-r border-white h-[60%]"></div>*/}
         {/* Right side */}
-        <div
-          className="flex-1 p-2"
-          style={{ maxHeight: "14rem" }}
-        >
-          <h2 className="text-xl font-bold mb-2">Hacker</h2>
+        {isMobile ? (
           <div
-            className="mt-5 overflow-y-auto"
-            style={{ maxHeight: "calc(14rem - 3rem)" }}
+            className="flex-1 p-2"
+            style={{ maxHeight: "14rem" }}
           >
-            {Array.from(
-              { length: Math.ceil(hackerAvatars.length / 4) },
-              (_, i) => (
-                <div key={i} className="flex space-x-4 mb-4">
-                  {hackerAvatars.slice(i * 4, i * 4 + 4).map((avatar) => (
-                    <div
-                      key={avatar.id}
-                      className="group flex flex-col items-center w-1/5 cursor-pointer"
-                      onClick={() => openModal(avatar)}
-                    >
-                      <img
-                        src={`${avatar.avatarUrl}${avatar.name}`}
-                        alt={avatar.name}
-                        className="w-full h-auto rounded-full mb-1 transition-transform duration-300 hover:scale-105 object-cover"
-                        style={{ maxHeight: "100px", maxWidth: "100%" }}
-                      />
-                      <span className="text-sm md:text-md group-hover:text-black text-center">
-                        {avatar.name}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )
-            )}
+            <h2 className="text-xl font-bold mb-2">Hacker</h2>
+            <div
+              className="mt-5 overflow-y-auto"
+              style={{ maxHeight: "calc(14rem - 3rem)" }}
+            >
+              {Array.from(
+                { length: Math.ceil(hackerAvatars.length / 4) },
+                (_, i) => (
+                  <div key={i} className="flex space-x-4 mb-4">
+                    {hackerAvatars.slice(i * 4, i * 4 + 4).map((avatar) => (
+                      <div
+                        key={avatar.id}
+                        className="group flex flex-col items-center w-1/5 cursor-pointer"
+                        onClick={() => openModal(avatar)}
+                      >
+                        <img
+                          src={`${avatar.avatarUrl}${avatar.name}`}
+                          alt={avatar.name}
+                          className="w-full h-auto rounded-full mb-1 transition-transform duration-300 hover:scale-105 object-cover"
+                          style={{ maxHeight: "100px", maxWidth: "100%" }}
+                        />
+                        <span className="text-sm md:text-md group-hover:text-black text-center">
+                          {avatar.name}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )
+              )}
+            </div>
+            <ProfileModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(!isModalOpen)}
+              user={selectedUser}
+              currentUser={currentUser}
+            />
           </div>
-          <ProfileModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(!isModalOpen)}
-            user={selectedUser}
-            currentUser={currentUser}
-          />
-        </div>
+
+        ) : (
+          <div
+            className="flex-1 p-2"
+            style={{ maxHeight: "14rem" }}
+          >
+            <h2 className="text-xl font-bold mb-2">Hacker</h2>
+            <div
+              className="mt-5 overflow-y-auto"
+              style={{ maxHeight: "calc(14rem - 3rem)" }}
+            >
+              {Array.from(
+                { length: Math.ceil(hackerAvatars.length / 4) },
+                (_, i) => (
+                  <div key={i} className="flex space-x-4 mb-4">
+                    {hackerAvatars.slice(i * 4, i * 4 + 4).map((avatar) => (
+                      <div
+                        key={avatar.id}
+                        className="group flex flex-col items-center w-1/5 cursor-pointer"
+                        onClick={() => openModal(avatar)}
+                      >
+                        <img
+                          src={`${avatar.avatarUrl}${avatar.name}`}
+                          alt={avatar.name}
+                          className="w-full h-auto rounded-full mb-1 transition-transform duration-300 hover:scale-105 object-cover"
+                          style={{ maxHeight: "100px", maxWidth: "100%" }}
+                        />
+                        <span className="text-sm md:text-md group-hover:text-black text-center">
+                          {avatar.name}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )
+              )}
+            </div>
+            <ProfileModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(!isModalOpen)}
+              user={selectedUser}
+              currentUser={currentUser}
+            />
+          </div>
+
+        )}
       </div>
     </div>
   );
