@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import ProfileModal from "../components/ProfileModal";
+import React, { useEffect, useState } from 'react'
+import ProifileModal from "../components/ProifileModal";
 
 interface Profile {
   id: number;
@@ -108,6 +108,7 @@ const fetchTeamAvatars = async (): Promise<Profile[]> => {
 interface Props { }
 
 const ConnectLocks: React.FC<Props> = (): JSX.Element => {
+
   const [avatars, setAvatars] = useState<Profile[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   // data đưa vào Modal 
