@@ -14,13 +14,23 @@ interface Props {
   onClose: () => void;
   user: User | null;
   currentUser?: User; // Người dùng hiện tại đang xem modal
+  addressUser?: string; // Địa chỉ ví của team
 }
+
+const removeVietnameseTones = (str: string) => {
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D');
+};
 
 const ProfileModal: React.FC<Props> = ({
   isOpen,
   onClose,
   user,
   currentUser,
+  addressUser,
 }) => {
   const [nftImages, setNftImages] = useState<string[]>([]);
   const [showActionModal, setShowActionModal] = useState<boolean>(false);
@@ -46,9 +56,7 @@ const ProfileModal: React.FC<Props> = ({
         );
 
         // Gọi hàm getSoulboundNFTs để lấy danh sách các token ID mà địa chỉ ví sở hữu
-        const check = await contract.getSoulboundNFTs(
-          "0x5eeb8342391e9c2Dd2a5C14Bc71d28C04Faadd53"
-        );
+        const check = await contract.getSoulboundNFTs(addressUser);
         if (check != null) {
           const imageUrl =
             "https://green-necessary-dormouse-499.mypinata.cloud/ipfs/QmWwybBHitTfTDgQMFcK4AYAES1NgXD6moYoa6rMpLXY71?fbclid=IwZXh0bgNhZW0CMTAAAR0w-LUSApyNJ2T6KzXYUJKIYumxglnovLGzXOieHYqUxNsBzsam1X-eNuE_aem_iK-4PlWcNlrhh-03iTfTMg";
@@ -62,7 +70,9 @@ const ProfileModal: React.FC<Props> = ({
     if (user) {
       fetchNFTs();
     }
-  }, [user]);
+  }, [user, addressUser]);
+
+  console.log("Address User:", addressUser);
 
   if (!isOpen || !user) return null;
 
@@ -141,17 +151,17 @@ const ProfileModal: React.FC<Props> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center">
-      <div className="bg-white m-4 rounded-lg max-h-[50%] w-[50%] sm:w-[70%] md:w-[60%] lg:w-[40%] xl:w-[30%] flex flex-col justify-center items-center relative shadow-lg   dark:bg-gray-700">
+    <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center z-50 items-center">
+      <div className="nes-container is-rounded is-dark m-4 max-h-[80%] w-[80%] sm:w-[90%] md:w-[85%] lg:w-[70%] xl:w-[60%] flex flex-col justify-center items-center relative shadow-lg">
         <img
           src={user.image}
           alt="Avatar"
           className="absolute -top-20 w-40 h-40 rounded-full object-cover border-4 border-white shadow-sm"
         />
-        <h2 className="mt-20 text-xl font-bold text-sky-300">
-          {user.firstname + " " + user.lastname}#{user._id["$oid"]}
+        <h2 className=" text-xl font-bold text-white" style={{ marginTop: '12vh' }}>
+          {removeVietnameseTones(user.firstname + " " + user.lastname)} #{user._id["$oid"]}
         </h2>
-        <p className="text-md md:text-lg text-sky-300 mt-2">
+        <p className="text-md md:text-lg text-white mt-2">
           Group: {user.team_id["$oid"]}
         </p>
         {/* Thêm các input và button cho các chức năng cập nhật thông tin, rời nhóm, v.v. */}
@@ -164,10 +174,10 @@ const ProfileModal: React.FC<Props> = ({
           </button>
         </div>
         <div className="h-full text-sky-200 ">
-          <div className="flex flex-row gap-10">
-            <div>
+          <div className="flex flex-col md:flex-row justify-center items-center">
+            <div className="text-center md:text-left">
               {/* Nội dung modal */}
-              <p>Wallet Address: {user.wallet_address}</p>
+              <p>Wallet Address: {addressUser}</p>
               {isCurrentUser && user.refs && (
                 <>
                   <h3>Referral List:</h3>
@@ -181,8 +191,9 @@ const ProfileModal: React.FC<Props> = ({
                 </>
               )}
             </div>
-
-            <div className="mt-4 flex flex-wrap justify-center">
+            <div className="w-full text-center flex items-center justify-center">
+              <span>Your NFT</span>
+              <span className="ml-2 mr-10 text-3xl">👉</span>
               {nftImages.map((imageUrl, index) => (
                 <img
                   key={index}
@@ -193,23 +204,12 @@ const ProfileModal: React.FC<Props> = ({
               ))}
             </div>
           </div>
-
           {isCurrentUser && (
             <div className="flex gap-2 m-2">
-              <button onClick={() => handleAction("changeName")}>
-                Change Name
-              </button>
-              <button onClick={() => handleAction("findGroup")}>
-                Find Group
-              </button>
-              <button onClick={() => handleAction("leaveGroup")}>
-                Leave Group
-              </button>
-              {/* {user. && (
-                <button onClick={() => handleAction("changeGroupName")}>
-                  Change Group Name
-                </button>
-              )} */}
+              <button className="nes-btn" onClick={() => handleAction('changeName')}>Change Name</button>
+              <button className="nes-btn" onClick={() => handleAction('findGroup')}>Find Group</button>
+              <button className="nes-btn" onClick={() => handleAction('leaveGroup')}>Leave Group</button>
+              {/* {user.isMentor && <button className="nes-btn" onClick={() => handleAction('changeGroupName')}>Change Group Name</button>} */}
             </div>
           )}
 
@@ -227,8 +227,8 @@ const ProfileModal: React.FC<Props> = ({
 
         {showActionModal && (
           <div className="absolute inset-0 bg-white p-4 rounded-lg shadow-lg m-4 flex flex-col justify-center items-center dark:bg-gray-700 stroke-lime-50 border border-solid border-sky-50">
-            {renderActionModal()}
-          </div>
+          {renderActionModal()}
+        </div>
         )}
       </div>
     </div>

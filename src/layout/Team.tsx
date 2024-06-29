@@ -13,15 +13,20 @@ interface TeamProps {
   sendMessage: (
     gameObjectName: string,
     methodName: string,
-    parameter?: ReactUnityEventParameter
+    parameter?: ReactUnityEventParameter,
+    address?: string,
   ) => void;
+  address?: string;
 }
 
 export const Team = ({
   updateTeamData,
   setUpdateTeamData,
   sendMessage,
+  address,
 }: TeamProps) => {
+  console.log("Address Team:", address);
+
   const [teamName, setTeamName] = useState<string>("");
   const [emailUserInvite, setEmailUserInvite] = useState<string>("");
   const { user, setUser } = useAuth() as AuthContextData;
@@ -254,6 +259,7 @@ export const Team = ({
         onClose={() => setIsModalOpen(!isModalOpen)}
         user={selectedUser}
         currentUser={user}
+        addressUser={address}
       />
     </div>
   );

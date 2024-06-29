@@ -15,6 +15,7 @@ import { useLocation } from "react-router-dom";
 import { updateTeamRespToDataMatchInGame } from "../utils";
 import { RedirectResult, UpdateTeamResponse } from "../types";
 import Knowledge from "../components/Knowledge";
+import SubKnowledge from "../components/SubKnowledge";
 
 function Home() {
   const { redirectResult, setUser, user, setRedirectResult } =
@@ -22,7 +23,13 @@ function Home() {
 
   const location = useLocation();
   const { address: initialAddress } = location.state || {};
-  const [address, setAddress] = useState<string>(initialAddress || "");
+  const [address, setAddress] = useState<string>("");
+
+  useEffect(() => {
+    const savedAddress = localStorage.getItem("address");
+    setAddress(savedAddress || initialAddress || "");
+  }, [initialAddress]);
+
   const [loading, setLoading] = useState(false);
   const [updateTeamData, setUpdateTeamData] = useState<UpdateTeamResponse>();
 
@@ -137,6 +144,7 @@ function Home() {
     checkUserExist();
   }, []);
 
+  // SOCKET EVENT LISTENERS
   useEffect(() => {
     async function getUserData() {
       const resp = await fetch(`${SERVER_URL}/get_user_by_email`, {
@@ -309,6 +317,7 @@ function Home() {
                 updateTeamData={updateTeamData}
                 setUpdateTeamData={setUpdateTeamData}
                 sendMessage={sendMessage}
+                address={address}
               />
             </div>
 
@@ -398,41 +407,12 @@ function Home() {
               updateTeamData={updateTeamData}
               setUpdateTeamData={setUpdateTeamData}
               sendMessage={sendMessage}
+              address={address}
             />
           </div>
 
-          <Knowledge />
-
-          <div className="sm:w-full w-1/4 p-2 nes-container bg-[#7e56f3] rounded-[24px] flex flex-col justify-between">
-            <div>
-              <div className="flex justify-between items-center text-white mb-2">
-                <div>SUB-KNOWLEDGE</div>
-              </div>
-              <div className="p-2">
-                <div className="nes-balloon from-left nes-pointer p-2">
-                  <div className="cursor-pointer">
-                    <div className="text-red-500">Introduction</div>
-                    <div className="text-black">
-                      This game was designed to help you fun with the hackathon
-                      concepts and learn more what blockchain is?
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="p-2">
-                <div className="nes-balloon from-left nes-pointer p-2">
-                  <div className="cursor-pointer">
-                    <div className="text-red-500">
-                      How the game help you understand blockchain?
-                    </div>
-                    <div className="text-black">
-                      We focus on providing insights into the Avax network.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <Knowledge/>
+          <SubKnowledge/>
         </div>
       </div>
     </>
