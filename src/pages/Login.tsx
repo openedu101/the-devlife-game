@@ -2,81 +2,76 @@ import { magic } from "../lib/magic";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { connectAccountAbstraction } from "../api/WalletAPI";
-
-const Loading = () => (
-  <div className="flex flex-col justify-center items-center h-screen">
-    <h1>Loading, please wait...</h1>
-  </div>
-);
+import FakeHome from "../components/FakeHome";
+import { AuthContextData, useAuth } from "../contexts/AuthProvider";
+import Loading from "../components/ui/Loading";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [loadingOauth, setLoadingOauth] = useState(false); // State cho loading trước khi xử lý OAuth
+  const [loadingRedirect, setLoadingRedirect] = useState(false); // State cho loading sau khi đăng nhập thành công
+  const { setRedirectResult } = useAuth() as AuthContextData;
 
   const handleSocialLogin = async () => {
     try {
+      setLoadingOauth(true); // Bắt đầu loading trước khi xử lý OAuth
+      // @ts-expect-error - later
       await magic.oauth.loginWithRedirect({
         provider: "google",
         redirectURI: new URL("/auth/callback", window.location.origin).href,
       });
     } catch (err) {
       console.error(err);
-    }
-  };
-
-  const handleConnect = async () => {
-    try {
-      console.log("Starting handleConnect");
-      const { address, status } = await connectAccountAbstraction();
-      console.log("API Response:", { address, status });
-
-      if (address) {
-        console.log("Address found:", address);
-        navigate("/home", { state: { address } });
-        console.log("Navigating to /home with address:", address);
-      } else {
-        console.log("No address found");
-      }
-    } catch (err) {
-      console.error("Error connecting account:", err);
-    }
-  };
-
-  const handleSocialLoginAndConnect = async () => {
-    try {
-      await handleSocialLogin();
-    } catch (err) {
-      console.error("Error during login and connect:", err);
+      setLoadingOauth(false); // Kết thúc loading nếu có lỗi
     }
   };
 
   useEffect(() => {
-    const checkPathAndConnect = async () => {
-      if (window.location.pathname === '/auth/callback') {
-        setLoading(true);
+    const checkPathAndNavigate = async () => {
+      if (window.location.pathname === "/auth/callback") {
+        setLoadingRedirect(true); // Bắt đầu loading sau khi đăng nhập thành công
         try {
-          await magic.oauth.getRedirectResult();
-          await handleConnect();
+          // @ts-expect-error - later
+          const redirectResult = await magic.oauth.getRedirectResult();
+          setRedirectResult(redirectResult);
+          localStorage.setItem(
+            "redirectResult",
+            JSON.stringify(redirectResult)
+          );
+          console.log(redirectResult);
+          navigate("/home");
         } catch (err) {
-          console.error("Error getting redirect result or connecting account:", err);
+          console.error("Error getting redirect result:", err);
         } finally {
-          setLoading(false);
+          setLoadingRedirect(false); // Kết thúc loading sau khi xử lý redirect
         }
       }
     };
-    checkPathAndConnect();
-  }, []);
+    checkPathAndNavigate();
+  }, [navigate]);
 
-  if (loading) {
+  if (loadingOauth) {
     return <Loading />;
   }
 
+  if (loadingRedirect) {
+    return <FakeHome />;
+  }
+
+  const devlifeGameImageUrl =
+    "https://green-necessary-dormouse-499.mypinata.cloud/ipfs/QmWwybBHitTfTDgQMFcK4AYAES1NgXD6moYoa6rMpLXY71?fbclid=IwZXh0bgNhZW0CMTAAAR0w-LUSApyNJ2T6KzXYUJKIYumxglnovLGzXOieHYqUxNsBzsam1X-eNuE_aem_iK-4PlWcNlrhh-03iTfTMg";
+
   return (
-    <div className="flex flex-col justify-center items-center h-screen">
+    <div className="flex flex-col justify-center items-center h-screen gap-50">
       <div className="flex flex-col items-center mb-20">
-        <h1>Welcome to the Devlife Game</h1>
-        <button onClick={handleSocialLoginAndConnect}>
+        <img
+          src={devlifeGameImageUrl}
+          alt="Devlife Game"
+          className="mb-4 rounded-lg"
+          style={{ width: "300px", height: "auto" }}
+        />
+        <h1>The Devlife Game</h1>
+        <button onClick={handleSocialLogin}>
           <div className="flex flex-row items-center">
             <FcGoogle size={"2.5rem"} />
             <span className="font-bold ml-2">Log in with Google</span>

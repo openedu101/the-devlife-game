@@ -1,7 +1,7 @@
 import { Magic } from "magic-sdk";
 import { OAuthExtension } from "@magic-ext/oauth";
 
-const createMagic = (key) => {
+const createMagic = (key: string) => {
   return (
     typeof window !== "undefined" &&
     new Magic(key, {
@@ -10,4 +10,4 @@ const createMagic = (key) => {
   );
 };
 
-export const magic = createMagic("pk_live_3EFC32B01A29985C");
+export const magic = createMagic(import.meta.env.VITE_MAGIC_PUBLIC_KEY);

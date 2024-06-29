@@ -29,6 +29,7 @@ export const connectAccountAbstraction = async (): Promise<{ address: EthereumAd
     // const result = await magic.oauth.getRedirectResult();
     // console.log("Magic OAuth result:", result);
 
+    // @ts-expect-error - later
     const web3Provider = new ethers.providers.Web3Provider(magic.rpcProvider, "any");
 
     const config = {
