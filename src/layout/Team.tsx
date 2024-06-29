@@ -24,7 +24,7 @@ export const Team = ({
 }: TeamProps) => {
   const [teamName, setTeamName] = useState<string>("");
   const [emailUserInvite, setEmailUserInvite] = useState<string>("");
-  const { user } = useAuth() as AuthContextData;
+  const { user, setUser } = useAuth() as AuthContextData;
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   // data đưa vào Modal
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -53,7 +53,17 @@ export const Team = ({
         }),
       });
 
-      const data = await resp.json();
+      const data: UpdateTeamResponse = await resp.json();
+
+      // @ts-expect-error - type later
+      setUser((prev) => {
+        return {
+          ...prev,
+          team_id: {
+            $oid: data.team._id["$oid"],
+          },
+        };
+      });
 
       setUpdateTeamData(data);
 

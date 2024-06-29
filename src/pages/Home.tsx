@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Unity, useUnityContext } from "react-unity-webgl";
-import { socket } from "../socket";
+// import { socket } from "../socket";
 import { useDevicePixelRatio } from "../hooks/useDevicePixelRatio";
 import { useScreen } from "../hooks/useScreen";
 import { createUser, updateDataDev } from "../api/socket-and-server-api";
-import { SocketServerEvents } from "../enums";
+// import { SocketServerEvents } from "../enums";
 import ConnectLocks from "../layout/ConnectLocks";
 import { walletCopy, walletCopyPL } from "../data/WalletData";
 import Header from "../components/Header";
@@ -38,7 +38,7 @@ function Home() {
     if (redirectResultJson) {
       setRedirectResult(JSON.parse(redirectResultJson));
     }
-  }, []);
+  }, [setRedirectResult]);
 
   const handleReturnToStartPage = () => {
     setShowConfigurator(false);
@@ -98,6 +98,8 @@ function Home() {
 
       const data = await resp.json();
 
+      console.log(data);
+
       if (data.StatusCode == 404) {
         const { address: connectedAddress } = await connectAccountAbstraction();
         await createUser(redirectResult as RedirectResult, connectedAddress);
@@ -108,87 +110,138 @@ function Home() {
         // check if user has team
         if (data.user.team_id) {
           // console.log("I have team");
-          const resp2 = await fetch(`${SERVER_URL}/get_team_by_id`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              // email: redirectResult.oauth.userInfo.email,
-              team_id: data.user.team_id["$oid"],
-            }),
-          });
-
-          const data2: UpdateTeamResponse = await resp2.json();
-
-          // console.log(data2);
-
-          const obj = updateTeamRespToDataMatchInGame(
-            data2,
-            data.user._id["$oid"]
-          );
-
-          console.log(obj);
-
-          setUpdateTeamData(data2);
-
-          sendMessage("PlayerControll", "receiveJsonTeam", JSON.stringify(obj));
+          // const resp2 = await fetch(`${SERVER_URL}/get_team_by_id`, {
+          //   method: "POST",
+          //   headers: {
+          //     "Content-Type": "application/json",
+          //   },
+          //   body: JSON.stringify({
+          //     // email: redirectResult.oauth.userInfo.email,
+          //     team_id: data.user.team_id["$oid"],
+          //   }),
+          // });
+          // const data2: UpdateTeamResponse = await resp2.json();
+          // // console.log(data2);
+          // const obj = updateTeamRespToDataMatchInGame(
+          //   data2,
+          //   data.user._id["$oid"]
+          // );
+          // console.log(obj);
+          // setUpdateTeamData(data2);
+          // sendMessage("PlayerControll", "receiveJsonTeam", JSON.stringify(obj));
         } else {
           // console.log("I do not have team");
         }
       }
     }
     checkUserExist();
-  }, [sendMessage]);
+  }, []);
+
+  useEffect(() => {
+    async function getUserData() {
+      const resp = await fetch(`${SERVER_URL}/get_user_by_email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: redirectResult?.oauth.userInfo.email,
+          // email: "letung678978@gmail.com",
+        }),
+      });
+
+      const data = await resp.json();
+
+      if (data.StatusCode != 404) {
+        setUser(data.user);
+      }
+    }
+    getUserData();
+  }, [redirectResult]);
+
+  useEffect(() => {
+    async function loadTeam() {
+      console.log("loadteam", user);
+      if (user?.team_id) {
+        console.log("I have team");
+        const resp2 = await fetch(`${SERVER_URL}/get_team_by_id`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            // email: redirectResult.oauth.userInfo.email,
+            team_id: user.team_id["$oid"],
+          }),
+        });
+
+        const data2: UpdateTeamResponse = await resp2.json();
+
+        // console.log(data2);
+
+        const obj = updateTeamRespToDataMatchInGame(data2, user._id["$oid"]);
+
+        console.log(obj);
+
+        setUpdateTeamData(data2);
+
+        console.log("Im sending message to game");
+
+        sendMessage("PlayerControll", "receiveJsonTeam", JSON.stringify(obj));
+      }
+    }
+
+    loadTeam();
+  }, [sendMessage, user]);
 
   // SOCKET EVENT LISTENERS
 
-  useEffect(() => {
-    // @ts-expect-error - later
-    function onUpdateTeam(data) {
-      console.log("onUpdateTeam", data);
+  // useEffect(() => {
+  //   // @ts-expect-error - later
+  //   function onUpdateTeam(data) {
+  //     console.log("onUpdateTeam", data);
 
-      const obj = {
-        team: {
-          name: data.team.name,
-          quantity: data.team.members.length,
-          total_token: data.team.total_token,
-          total_commit: data.team.total_commit,
-          total_bug: data.team.total_bugs,
-        },
-        // @ts-expect-error - later
-        users: data.users.map((user) => {
-          console.log(user);
-          return {
-            id: user._id["$oid"],
-            name: `${user.firstname} ${user.lastname}`,
-            stamina: user.stamina,
-            is_online: user.is_online,
-          };
-        }),
-        id_user_playing: data.user._id["$oid"], // replace with id when login
-      }; // UpdateTeamResponse (Rust type)
+  //     const obj = {
+  //       team: {
+  //         name: data.team.name,
+  //         quantity: data.team.members.length,
+  //         total_token: data.team.total_token,
+  //         total_commit: data.team.total_commit,
+  //         total_bug: data.team.total_bugs,
+  //       },
+  //       // @ts-expect-error - later
+  //       users: data.users.map((user) => {
+  //         console.log(user);
+  //         return {
+  //           id: user._id["$oid"],
+  //           name: `${user.firstname} ${user.lastname}`,
+  //           stamina: user.stamina,
+  //           is_online: user.is_online,
+  //         };
+  //       }),
+  //       id_user_playing: data.user._id["$oid"], // replace with id when login
+  //     }; // UpdateTeamResponse (Rust type)
 
-      console.log(obj);
+  //     console.log(obj);
 
-      setUpdateTeamData(data);
+  //     setUpdateTeamData(data);
 
-      sendMessage("PlayerControll", "receiveJsonTeam", JSON.stringify(obj));
-    }
+  //     sendMessage("PlayerControll", "receiveJsonTeam", JSON.stringify(obj));
+  //   }
 
-    // function onCreateUser(data) {
-    //   console.log("onCreateUser", data);
-    //   setUser(data);
-    // }
+  //   // function onCreateUser(data) {
+  //   //   console.log("onCreateUser", data);
+  //   //   setUser(data);
+  //   // }
 
-    socket.on(SocketServerEvents.UpdateTeam, onUpdateTeam);
-    // socket.on(SocketServerEvents.CreateUserResponse, onCreateUser);
+  //   socket.on(SocketServerEvents.UpdateTeam, onUpdateTeam);
+  //   // socket.on(SocketServerEvents.CreateUserResponse, onCreateUser);
 
-    return () => {
-      socket.off(SocketServerEvents.UpdateTeam, onUpdateTeam);
-      // socket.off(SocketServerEvents.CreateUserResponse, onCreateUser);
-    };
-  }, [sendMessage]);
+  //   return () => {
+  //     socket.off(SocketServerEvents.UpdateTeam, onUpdateTeam);
+  //     // socket.off(SocketServerEvents.CreateUserResponse, onCreateUser);
+  //   };
+  // }, [sendMessage]);
 
   useEffect(() => {
     const connectWallet = async () => {
@@ -259,37 +312,38 @@ function Home() {
               />
             </div>
 
-            <Knowledge/>
+            <Knowledge />
 
-          <div className="sm:w-full w-1/4 p-2 nes-container bg-[#7e56f3] rounded-[24px] flex flex-col justify-between">
-            <div>
-              <div className="flex justify-between items-center text-white mb-2">
-                <div>SUB-KNOWLEDGE</div>
-              </div>
-              <div className="p-2">
-                <div className="nes-balloon from-left nes-pointer p-2">
-                  <div className="cursor-pointer">
-                    <div className="text-red-500">Introduction</div>
-                    <div className="text-black">
-                      This game was designed to help you fun with the hackathon
-                      concepts and learn more what blockchain is?
+            <div className="sm:w-full w-1/4 p-2 nes-container bg-[#7e56f3] rounded-[24px] flex flex-col justify-between">
+              <div>
+                <div className="flex justify-between items-center text-white mb-2">
+                  <div>SUB-KNOWLEDGE</div>
+                </div>
+                <div className="p-2">
+                  <div className="nes-balloon from-left nes-pointer p-2">
+                    <div className="cursor-pointer">
+                      <div className="text-red-500">Introduction</div>
+                      <div className="text-black">
+                        This game was designed to help you fun with the
+                        hackathon concepts and learn more what blockchain is?
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="p-2">
-                <div className="nes-balloon from-left nes-pointer p-2">
-                  <div className="cursor-pointer">
-                    <div className="text-red-500">How the game help you understand blockchain?</div>
-                    <div className="text-black">
-                      We focus on providing insights into the Avax network.
+                <div className="p-2">
+                  <div className="nes-balloon from-left nes-pointer p-2">
+                    <div className="cursor-pointer">
+                      <div className="text-red-500">
+                        How the game help you understand blockchain?
+                      </div>
+                      <div className="text-black">
+                        We focus on providing insights into the Avax network.
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-
           </div>
         </div>
       </>
@@ -347,36 +401,38 @@ function Home() {
             />
           </div>
 
-          <Knowledge/>
+          <Knowledge />
 
           <div className="sm:w-full w-1/4 p-2 nes-container bg-[#7e56f3] rounded-[24px] flex flex-col justify-between">
-        <div>
-          <div className="flex justify-between items-center text-white mb-2">
-            <div>SUB-KNOWLEDGE</div>
-          </div>
-          <div className="p-2">
-            <div className="nes-balloon from-left nes-pointer p-2">
-              <div className="cursor-pointer">
-                <div className="text-red-500">Introduction</div>
-                <div className="text-black">
-                  This game was designed to help you fun with the hackathon
-                  concepts and learn more what blockchain is?
+            <div>
+              <div className="flex justify-between items-center text-white mb-2">
+                <div>SUB-KNOWLEDGE</div>
+              </div>
+              <div className="p-2">
+                <div className="nes-balloon from-left nes-pointer p-2">
+                  <div className="cursor-pointer">
+                    <div className="text-red-500">Introduction</div>
+                    <div className="text-black">
+                      This game was designed to help you fun with the hackathon
+                      concepts and learn more what blockchain is?
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="p-2">
+                <div className="nes-balloon from-left nes-pointer p-2">
+                  <div className="cursor-pointer">
+                    <div className="text-red-500">
+                      How the game help you understand blockchain?
+                    </div>
+                    <div className="text-black">
+                      We focus on providing insights into the Avax network.
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div className="p-2">
-            <div className="nes-balloon from-left nes-pointer p-2">
-              <div className="cursor-pointer">
-                <div className="text-red-500">How the game help you understand blockchain?</div>
-                <div className="text-black">
-                  We focus on providing insights into the Avax network.
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
         </div>
       </div>
     </>
