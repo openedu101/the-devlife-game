@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "start": "vite preview",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
@@ -13,6 +14,7 @@
     "@biconomy/account": "^4.4.6",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@magic-ext/oauth": "^22.0.7",
+    "@vercel/static-build": "^2.5.11",
     "@walletconnect/sign-client": "^2.4.7",
     "@web3auth/base": "^8.6.2",
     "@web3auth/modal": "^7.3.1",
