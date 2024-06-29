@@ -144,7 +144,37 @@ function Home() {
     checkUserExist();
   }, []);
 
-  // SOCKET EVENT LISTENERS
+  useEffect(() => {
+    async function setRoom() {
+      if (user?.team_id) {
+        const resp = await fetch(`${SERVER_URL}/get_team_by_id`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            team_id: user.team_id["$oid"],
+          }),
+        });
+
+        const data: UpdateTeamResponse = await resp.json();
+
+        console.log(data.team.total_commit);
+
+        if (data.team.total_commit >= 500) {
+          sendMessage("Room", "SetRoom", 1);
+        } else if (data.team.total_commit >= 1500) {
+          sendMessage("Room", "SetRoom", 2);
+        } else {
+          sendMessage("Room", "SetRoom", 0);
+        }
+      } else {
+        sendMessage("Room", "SetRoom", 0);
+      }
+    }
+    setRoom();
+  }, [sendMessage, user?.team_id]);
+
   useEffect(() => {
     async function getUserData() {
       const resp = await fetch(`${SERVER_URL}/get_user_by_email`, {
