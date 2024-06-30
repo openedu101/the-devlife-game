@@ -6,6 +6,7 @@ import {
   LightSigner,
 } from '@biconomy/account';
 import { magic } from '../lib/magic';
+import { BiconomySmartAccountV2 } from '@biconomy/account';
 
 const StatusText = styled.h1`
   font-family: 'PixelText7';
@@ -18,12 +19,12 @@ const chains = {
   chainId: 43114,
   name: 'Avalanche (C-Chain)',
   providerUrl: 'https://api.avax.network/ext/bc/C/rpc',
-  incrementCountContractAdd: '0x5eeb8342391e9c2dd2a5c14bc71d28c04faadd53',
-  biconomyPaymasterApiKey: 'DnIE-WZpb.b4737ab0-0102-42bd-93cc-f0057c9d1111',
+  incrementCountContractAdd: import.meta.env.VITE_INCREMENT_COUNT_CONTRACT_ADDRESS,
+  biconomyPaymasterApiKey: import.meta.env.VITE_BICONOMY_PAYMASTER_API_KEY,
   explorerUrl: 'https://subnets.avax.network/c-chain',
 };
 
-export const connectAccountAbstraction = async (): Promise<{ address: EthereumAddress | ''; status: string | JSX.Element }> => {
+export const connectAccountAbstraction = async (): Promise<{ address: EthereumAddress | ''; status: string | JSX.Element, smartWallet?: BiconomySmartAccountV2 }> => {
   try {
     // // Nhận kết quả xác thực từ Magic OAuth
     // const result = await magic.oauth.getRedirectResult();
@@ -34,7 +35,7 @@ export const connectAccountAbstraction = async (): Promise<{ address: EthereumAd
 
     const config = {
       biconomyPaymasterApiKey: chains.biconomyPaymasterApiKey,
-      bundlerUrl: `https://bundler.biconomy.io/api/v2/${chains.chainId}/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44`,
+      bundlerUrl: import.meta.env.VITE_BUNDLER_URL,
     };
 
     const smartWallet = await createSmartAccountClient({
@@ -51,6 +52,7 @@ export const connectAccountAbstraction = async (): Promise<{ address: EthereumAd
     return {
       address,
       status: '',
+      smartWallet, // Return smartWallet
     };
   } catch (err) {
     console.error("Error connecting account abstraction:", err);

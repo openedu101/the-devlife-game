@@ -192,7 +192,7 @@ const ProfileModal: React.FC<Props> = ({
               )}
             </div>
             <div className="w-full text-center flex items-center justify-center">
-              <span>Your NFT</span>
+              <span>Your SoulBound NFT on DevLife Subnet</span>
               <span className="ml-2 mr-10 text-3xl">👉</span>
               {nftImages.map((imageUrl, index) => (
                 <img

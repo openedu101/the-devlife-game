@@ -16,6 +16,7 @@ import { updateTeamRespToDataMatchInGame } from "../utils";
 import { RedirectResult, UpdateTeamResponse } from "../types";
 import Knowledge from "../components/Knowledge";
 import SubKnowledge from "../components/SubKnowledge";
+import { BiconomySmartAccountV2 } from "@biconomy/account"; // Added this line
 
 function Home() {
   const { redirectResult, setUser, user, setRedirectResult } =
@@ -38,7 +39,11 @@ function Home() {
   const [language, setLanguage] = useState("english");
   // const [publicAddress, setPublicAddress] = useState('');
   // const [smartAccount, setSmartAccount] = useState(null);
+
+  const [smartWallet, setSmartWallet] = useState<BiconomySmartAccountV2 | null>(null); // Changed this line
+
   const [isUserCreated, setIsUserCreated] = useState(false);
+
 
   // load redirectResult from localStorage
   useEffect(() => {
@@ -109,9 +114,15 @@ function Home() {
       console.log(data);
 
       if (data.StatusCode == 404) {
-        const { address: connectedAddress } = await connectAccountAbstraction();
+        const { address: connectedAddress, smartWallet } = await connectAccountAbstraction();
         await createUser(redirectResult as RedirectResult, connectedAddress);
+
+        if (smartWallet) {
+          setSmartWallet(smartWallet);
+        }
+
         setIsUserCreated(true);
+
       } else {
         // console.log(data);
         setUser(data.user);
@@ -297,8 +308,11 @@ function Home() {
     const connectWallet = async () => {
       setLoading(true);
       try {
-        const { address: connectedAddress } = await connectAccountAbstraction();
+        const { address: connectedAddress, smartWallet } = await connectAccountAbstraction();
         setAddress(connectedAddress);
+        if (smartWallet) {
+          setSmartWallet(smartWallet);
+        }
       } catch (err) {
         console.error("Error connecting wallet:", err);
       } finally {
@@ -363,7 +377,7 @@ function Home() {
               />
             </div>
 
-            <Knowledge />
+            <Knowledge address={address} />
 
             <div className="sm:w-full w-1/4 p-2 nes-container bg-[#7e56f3] rounded-[24px] flex flex-col justify-between">
               <div>
@@ -453,8 +467,10 @@ function Home() {
             />
           </div>
 
-          <Knowledge />
-          <SubKnowledge />
+
+          <Knowledge address={address} smartWallet={smartWallet || undefined}/>
+          <SubKnowledge/>
+
         </div>
       </div>
     </>

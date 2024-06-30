@@ -9,7 +9,11 @@ export default defineConfig({
   },
   plugins: [react()],
   resolve: {
-    alias: {},
+    alias: {
+      process: "process/browser",
+      stream: "stream-browserify",
+      util: "util",
+    },
   },
   optimizeDeps: {
     esbuildOptions: {
