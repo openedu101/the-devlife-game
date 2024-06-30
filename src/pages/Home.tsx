@@ -199,7 +199,15 @@ function Home() {
       }
     }
     getUserData();
-  }, [redirectResult, setUser, user, setRedirectResult, address, isUserCreated]);
+  }, [
+    redirectResult,
+    setUser,
+    user,
+    setRedirectResult,
+    address,
+    isUserCreated,
+    isLoaded,
+  ]);
 
   useEffect(() => {
     async function loadTeam() {
