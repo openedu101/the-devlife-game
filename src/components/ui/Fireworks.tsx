@@ -50,6 +50,7 @@ const Fireworks: React.FC<FireworksProps> = ({ role, roleImage, smartWallet, add
 
       const userOpResponse = await smartWallet.sendTransaction({
         ...userOperation,
+         //@ts-expect-error - later
         paymasterAndData,
       });
 
