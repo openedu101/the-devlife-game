@@ -38,6 +38,7 @@ function Home() {
   const [language, setLanguage] = useState("english");
   // const [publicAddress, setPublicAddress] = useState('');
   // const [smartAccount, setSmartAccount] = useState(null);
+  const [isUserCreated, setIsUserCreated] = useState(false);
 
   // load redirectResult from localStorage
   useEffect(() => {
@@ -110,6 +111,7 @@ function Home() {
       if (data.StatusCode == 404) {
         const { address: connectedAddress } = await connectAccountAbstraction();
         await createUser(redirectResult as RedirectResult, connectedAddress);
+        setIsUserCreated(true);
       } else {
         // console.log(data);
         setUser(data.user);
@@ -191,11 +193,13 @@ function Home() {
       const data = await resp.json();
 
       if (data.StatusCode != 404) {
+        console.log("Im here to set user");
+        console.log(data);
         setUser(data.user);
       }
     }
     getUserData();
-  }, [redirectResult]);
+  }, [redirectResult, setUser, user, setRedirectResult, address, isUserCreated]);
 
   useEffect(() => {
     async function loadTeam() {
@@ -441,8 +445,8 @@ function Home() {
             />
           </div>
 
-          <Knowledge/>
-          <SubKnowledge/>
+          <Knowledge />
+          <SubKnowledge />
         </div>
       </div>
     </>
