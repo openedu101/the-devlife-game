@@ -53,9 +53,9 @@ export async function createUser(
   try {
     const createUserRequest = {
       email: redirectResult.oauth.userInfo.email,
-      picture: redirectResult.oauth.userInfo.picture,
-      family_name: redirectResult.oauth.userInfo.familyName,
-      given_name: redirectResult.oauth.userInfo.givenName,
+      picture: redirectResult.oauth.userInfo.picture || "",
+      family_name: redirectResult.oauth.userInfo.familyName || "",
+      given_name: redirectResult.oauth.userInfo.givenName || "",
       wallet_address: address,
     };
 
