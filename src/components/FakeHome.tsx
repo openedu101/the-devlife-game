@@ -312,43 +312,12 @@ const FakeHome = () => {
       </HeaderContainer>
     <div/>
 
-    <div className="sm:flex-col flex mt-4 gap-2">
-          <div className="sm:w-full w-1/2 p-2 nes-container bg-[#1d0f48] rounded-[24px] ">
-            <div className="flex justify-center items-center border-orange">
-              {!isLoaded && (
-                <p>
-                  Loading Application... {Math.round(loadingProgression * 100)}%
-                </p>
-              )}
-              <div
-                style={{
-                  display: isLoaded ? "block" : "none",
-                  width: `${
-                    !isLargeScreen
-                      ? screenSize.width / screenSize.height > 1
-                        ? screenSize.width
-                        : screenSize.width - 50
-                      : screenSize.width / 2.13
-                  }px`,
-                  height: `${
-                    !isLargeScreen
-                      ? screenSize.width / screenSize.height > 1
-                        ? screenSize.height - 70
-                        : screenSize.height - 100
-                      : screenSize.height / 1.6
-                  }px`,
-                }}
-              >
-                Unity Component Placeholder
-              </div>
-            </div>
-            {/* CONNECT */}
-            <div>ConnectLocks Component Placeholder</div>
-          </div>
+    <div className="sm:flex-col flex mt-4 gap-2 w-full">
+          
 
           <Knowledge/>
 
-          <div className="sm:w-full w-1/4 p-2 nes-container bg-[#7e56f3] rounded-[24px] flex flex-col justify-between">
+          <div className="w-1/3 p-2 nes-container bg-[#7e56f3] rounded-[24px] flex flex-col justify-between">
             <div>
               <div className="flex justify-between items-center text-white mb-2">
                 <div>SUB-KNOWLEDGE</div>

@@ -47,7 +47,6 @@ export const connectAccountAbstraction = async (): Promise<{ address: EthereumAd
     });
 
     const address = (await smartWallet.getAccountAddress()) as EthereumAddress;
-    console.log("Smart wallet address:", address);
 
     return {
       address,

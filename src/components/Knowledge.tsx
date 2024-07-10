@@ -18,7 +18,6 @@ const Knowledge = ({
   address,
   smartWallet
 }: Knowledge) => {
-  console.log("Knowledge", address);
   const [currentQuestion, setCurrentQuestion] = useState<number>(() => {
     const savedQuestion = localStorage.getItem('currentQuestion');
     return savedQuestion ? JSON.parse(savedQuestion) : 0;
@@ -55,8 +54,6 @@ const Knowledge = ({
         const rpcUrl =
           "https://api.avax-test.network/ext/bc/C/rpc";
         const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
-        console.log(provider);
-
         // Địa chỉ của contract ERC-721
         const erc721ContractAddress =
           "0x4d757023780C7Ff62B65CFcB6E9EABa8D8216194";
@@ -70,7 +67,6 @@ const Knowledge = ({
 
         // Gọi hàm getSoulboundNFTs để lấy danh sách các token ID mà địa chỉ ví sở hữu
         const check = await contract.getSoulboundNFTs(address);
-        console.log(check);
 
         // Nếu mảng check rỗng, hiển thị NFT dựa trên vai trò của người chơi
         if (check.length === 0) {
@@ -96,8 +92,6 @@ const Knowledge = ({
       fetchNFTs();
     }
   }, [address, score]);
-
-  console.log("ffffffffffffffffffffffffffffffffff",nfts)
 
   const handleAnswerClick = (answer: string) => {
     if (answer === questions[currentQuestion].correctAnswer) {
@@ -148,7 +142,7 @@ const Knowledge = ({
   const roleImage = getRoleImage(role);
 
   return (
-    <div className="sm:w-full w-1/4 p-2 nes-container bg-[#de90bd] rounded-[24px] flex flex-col justify-between">
+    <div className="sm:w-full w-2/3 p-2 nes-container bg-[#de90bd] rounded-[24px] flex flex-col justify-between">
       {showFireworks && (
         <Fireworks role={newRole} roleImage={getRoleImage(newRole)} onClaim={handleClaim} smartWallet={smartWallet} address={address}/>
       )}

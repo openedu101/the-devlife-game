@@ -30,7 +30,7 @@ const SubKnowledge = () => {
   }, []);
 
   return (
-    <div className="sm:w-full w-1/4 p-2 nes-container bg-[#7e56f3] rounded-[24px] flex flex-col justify-between">
+    <div className="sm:w-full w-1/3 p-2 nes-container bg-[#7e56f3] rounded-[24px] flex flex-col justify-between">
       <div>
         <div className="flex justify-between items-center text-white mb-2">
           <div>SUB-KNOWLEDGE</div>

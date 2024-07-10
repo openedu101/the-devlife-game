@@ -11,7 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@biconomy/account": "^4.4.6",
+    "@biconomy/account": "^4.5.2",
     "@biconomy/mexa": "^3.0.6",
     "@biconomy/paymaster": "^4.1.1",
     "@biconomy/use-aa": "^1.0.14",

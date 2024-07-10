@@ -1,9 +1,7 @@
 import React from 'react';
 import { Hex, encodeFunctionData } from "viem";
 import { realbuilderSBTabi } from "../../abi/RealBuilderSBT";
-import { BiconomySmartAccountV2 } from "@biconomy/account";
-import { PaymasterMode, BiconomyPaymaster } from "@biconomy/paymaster";
-import type { UserOperationStruct } from "@alchemy/aa-core";
+import { BiconomySmartAccountV2, PaymasterMode, SponsorUserOperationDto, createPaymaster } from "@biconomy/account";
 
 interface FireworksProps {
   role: string;
@@ -21,47 +19,40 @@ const Fireworks: React.FC<FireworksProps> = ({ role, roleImage, smartWallet, add
       return;
     }
 
-    try {
-      const nftAddress = "0xb1f798Ea3086e5E55A3616852a25037f2B79B1Dd";
-      const nftData = encodeFunctionData({
+    const nftAddress = "0xb1f798Ea3086e5E55A3616852a25037f2B79B1Dd";
+
+    const transaction = {
+      to: nftAddress,
+      data: encodeFunctionData({
         abi: realbuilderSBTabi,
         functionName: "safeMint",
         args: [address as Hex, roleImage as Hex],
-      });
+      }),
+    };
 
-      const userOperation: Partial<UserOperationStruct> = {
-        factory: nftAddress,
-        callData: nftData,
-        callGasLimit: "0x5208",
-      };
+    const partialUserOp = await smartWallet.buildUserOp([transaction]);
 
-      const paymasterServiceData = {
-        mode: PaymasterMode.SPONSORED,
-        calculateGasLimits: true,
-      };
+    const biconomyPaymaster = await createPaymaster({ paymasterUrl: import.meta.env.VITE_BICONOMY_PAYMASTER_URL });
 
-      const paymaster = new BiconomyPaymaster(import.meta.env.VITE_BICONOMY_PAYMASTER_API_KEY);
+    const paymasterServiceData: SponsorUserOperationDto = {
+      mode: PaymasterMode.SPONSORED,
+    };
 
-      console.log("API Key:", import.meta.env.VITE_BICONOMY_PAYMASTER_API_KEY);
-      console.log("User Operation:", userOperation);
+    try {
+      const paymasterAndDataResponse = await biconomyPaymaster.getPaymasterAndData(
+        partialUserOp,
+        paymasterServiceData,
+      );
+      partialUserOp.paymasterAndData = paymasterAndDataResponse.paymasterAndData;
 
-      const paymasterAndDataResponse = await paymaster.getPaymasterAndData(userOperation, paymasterServiceData);
-      const paymasterAndData = await paymasterAndDataResponse.paymasterAndData;
+      const userOpResponse = await smartWallet.sendUserOp(partialUserOp);
+      
+      const transactionDetails = await userOpResponse.wait();
 
-      const userOpResponse = await smartWallet.sendTransaction({
-        ...userOperation,
-         //@ts-expect-error - later
-        paymasterAndData,
-      });
+      console.log("Transaction Hash:", transactionDetails.receipt.transactionHash);
 
-      const { transactionHash } = await userOpResponse.waitForTxHash();
-      console.log("Transaction Hash:", transactionHash);
-
-      const userOpReceipt = await userOpResponse.wait();
-
-      if (userOpReceipt.success === 'true') {
-        console.log("UserOp Receipt:", userOpReceipt);
-        console.log("Transaction Receipt:", userOpReceipt.receipt);
+      if (transactionDetails.success === 'true') {
+        console.log("Transaction Receipt:", transactionDetails.receipt);
       }
     } catch (error) {
       console.error("Error minting NFT:", error);
